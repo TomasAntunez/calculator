@@ -1,126 +1,26 @@
-import { FC, useRef, useState } from 'react';
+import { FC } from 'react';
 import { Text, View } from 'react-native';
 
 import { styles } from '../theme';
-import { CalculatorButton } from '../components/CalculatorButton';
-
-
-enum Operator {
-  ADD,
-  SUBTRACT,
-  MULTIPLY,
-  SPLIT
-}
+import { CalculatorButton } from '../components';
+import { useCalculator } from '../hooks';
 
 
 export const CalculatorScreen: FC = () => {
 
-  const [ prevNumber, setPrevNumber ] = useState('0');
-  const [ number, setNumber ] = useState('100');
-
-  const lastOperation = useRef<Operator | null>(null);
-
-
-  const clear = () => {
-    setNumber('0');
-  };
-
-
-  const clearAll = () => {
-    clear();
-    setPrevNumber('0');
-  }
-
-
-  const buildNumber = ( textNumber: string ) => {
-
-    if ( number.includes('.') && textNumber === '.' ) return;
-
-    if ( number.startsWith('0') || number.startsWith('-0') ) {
-
-      if (
-        ( textNumber === '.' ) ||
-        ( (textNumber === '0') && number.includes('.') )
-      ) {
-        setNumber( number + textNumber );
-        return;
-      }
-
-      if ( textNumber !== '0' && !number.includes('.') ) {
-        setNumber( textNumber );
-        return;
-      }
-
-      if ( textNumber === '0' && !number.includes('.') ) {
-        setNumber( number );
-        return;
-      }
-
-    }
-
-    setNumber( number + textNumber );
-  };
-
-
-  const changeNumberSign = () => {
-
-    if ( number.startsWith('-') ) {
-      setNumber( number.replace('-', '') );
-      return;
-    }
-
-    setNumber( '-' + number );
-  };
-
-
-  const deleteLastDigit = () => {
-
-    if ( (number === '0') || (number === '-0') ) return;
-
-    if (
-      ( number.length === 1 ) ||
-      ( (number.length === 2) && number.startsWith('-') )
-    ) {
-      clear();
-      return;
-    }
-
-    setNumber( number.slice(0, -1) );
-  };
-
-
-  const savePrevNumber = () => {
-
-    if ( number.endsWith('.') ) {
-      setPrevNumber( number.slice(0, -1) );
-    } else {
-      setPrevNumber( number );
-    }
-
-    clear();
-  };
-
-
-  const handleOperation = ( operator: Operator ) => {
-    savePrevNumber();
-    lastOperation.current = operator;
-  };
-
-  const add = () => {
-    handleOperation( Operator.ADD );
-  };
-
-  const subtract = () => {
-    handleOperation( Operator.SUBTRACT );
-  };
-
-  const multiply = () => {
-    handleOperation( Operator.MULTIPLY );
-  };
-
-  const split = () => {
-    handleOperation( Operator.SPLIT );
-  };
+  const {
+    prevNumber,
+    number,
+    clear,
+    changeNumberSign,
+    deleteLastDigit,
+    buildNumber,
+    split,
+    multiply,
+    subtract,
+    add,
+    calculate
+  } = useCalculator();
 
 
   return (
@@ -137,7 +37,7 @@ export const CalculatorScreen: FC = () => {
 
 
       <View style={ styles.row }>
-        <CalculatorButton text='C'   color='#9B9B9B' action={ clearAll } />
+        <CalculatorButton text='C'   color='#9B9B9B' action={ clear } />
         <CalculatorButton text='+/-' color='#9B9B9B' action={ changeNumberSign } />
         <CalculatorButton text='del' color='#9B9B9B' action={ deleteLastDigit } />
         <CalculatorButton text='/'   color='#FF9427' action={ split } />
@@ -167,7 +67,7 @@ export const CalculatorScreen: FC = () => {
       <View style={ styles.row }>
         <CalculatorButton text='0' action={ buildNumber } broad />
         <CalculatorButton text='.' action={ buildNumber } />
-        <CalculatorButton text='=' action={ clear } color='#FF9427' />
+        <CalculatorButton text='=' action={ calculate } color='#FF9427' />
       </View>
 
     </View>
